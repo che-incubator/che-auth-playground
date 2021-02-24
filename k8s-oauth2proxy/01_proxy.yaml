@@ -1,0 +1,86 @@
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: oauth2-proxy
+  namespace: che
+  labels:
+    app: oauth2-proxy
+spec:
+  containers:
+  - name: oauth2-proxy
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.0.1
+    command: ['oauth2-proxy']
+    args: ['--config=/etc/oauth2-proxy/oauth2-proxy.cfg']
+    volumeMounts:
+    - name: config
+      mountPath: /etc/oauth2-proxy
+    ports:
+    - containerPort: 4180
+  volumes:
+  - name: config
+    configMap:
+      name: oauth2-proxy
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: oauth2-proxy
+  namespace: che
+data:
+  oauth2-proxy.cfg: |
+    http_address = ":4180"
+    reverse_proxy = true
+    redirect_url = "https://che.192.168.39.252.nip.io/oauth2/callback"
+    upstreams = [
+        "http://che-gateway:8080/"
+    ]
+    client_id = "391c820d32398ef3a5ce"
+    client_secret = "dfbbc028cb1c82cedc37f1c652fa5c8aed1dd680"
+    provider = "github"
+    cookie_secret = "wgg2UoihVgdmnnJzekA0qQ=="
+    email_domains = "*"
+    standard_logging = true
+    request_logging = true
+    auth_logging = true
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: oauth2-proxy
+  namespace: che
+spec:
+  selector:
+    app: oauth2-proxy
+  ports:
+  - name: http
+    protocol: TCP
+    port: 4180
+    targetPort: 4180
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: che
+  namespace: che
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+      - che.192.168.39.252.nip.io
+    secretName: che-tls
+  rules:
+  - host: che.192.168.39.252.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: oauth2-proxy
+            port: 
+              number: 4180
