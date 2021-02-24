@@ -33,6 +33,10 @@ spec:
         env:
         - name: WHOAMI_NAME
           value: che
+      - name: curl
+        image: curlimages/curl
+        command: ["sleep"]
+        args: ["infinity"]
 ---
 kind: Service
 apiVersion: v1

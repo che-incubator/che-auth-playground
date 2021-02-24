@@ -31,18 +31,22 @@ data:
   oauth2-proxy.cfg: |
     http_address = ":4180"
     reverse_proxy = true
-    redirect_url = "https://che.192.168.39.252.nip.io/oauth2/callback"
+    redirect_url = "http://127.0.0.1:4180/oauth2/callback"
     upstreams = [
         "http://che-gateway:8080/"
     ]
-    client_id = "391c820d32398ef3a5ce"
-    client_secret = "dfbbc028cb1c82cedc37f1c652fa5c8aed1dd680"
-    provider = "github"
+    client_id = "oauth2-proxy"
+    client_secret = "proxy"
+    provider = "oidc"
+    provider_display_name = "Dex"
+    oidc_issuer_url = "http://dex:5556"
     cookie_secret = "wgg2UoihVgdmnnJzekA0qQ=="
     email_domains = "*"
     standard_logging = true
     request_logging = true
     auth_logging = true
+    cookie_secure = false
+    cookie_httponly = true
 ---
 kind: Service
 apiVersion: v1
