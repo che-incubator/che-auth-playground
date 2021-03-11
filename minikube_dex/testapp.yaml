@@ -1,0 +1,75 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: che-auth-testapp
+  labels:
+    app: che-auth-testapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: che-auth-testapp
+  template:
+    metadata:
+      labels:
+        app: che-auth-testapp
+    spec:
+      containers:
+        - name: che-auth-testapp
+          image: quay.io/mvala/che-auth-testapp:latest
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "100m"
+            limits:
+              memory: "32Mi"
+              cpu: "100m"
+          ports:
+            - containerPort: 8080
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: che-auth-testapp
+spec:
+  selector:
+    app: che-auth-testapp
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: che-auth-testapp
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+spec:
+  rules:
+    - host: che-auth-testapp.{{MINIKUBE_IP}}.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: che-auth-testapp
+                port:
+                  number: 8080
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: che-auth-testapp
+subjects:
+  - kind: User
+    name: che@eclipse.org
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: admin
+  apiGroup: rbac.authorization.k8s.io
