@@ -14,7 +14,11 @@ $ ./12_testapp.sh
 
 ## How to use it
 
-To test the RBAC rules, user `che@eclipse.org` has admin permissions to `che` namespace.
+1. First open the token app webpage, should be on `http://oidc-example-app.<minikube ip>.nip.io`
+1. Login and copy the token
+1. Open the test app, should be on `http://che-auth-testapp.<minikube ip>.nip.io`
+1. Paste the token
+1. To test the RBAC rules, user `che@eclipse.org` has admin permissions to `che` namespace
 
 ![demo](demo.gif)
 
