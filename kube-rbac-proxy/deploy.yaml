@@ -1,0 +1,81 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: che-auth-testapp
+  labels:
+    app: che-auth-testapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: che-auth-testapp
+  template:
+    metadata:
+      labels:
+        app: che-auth-testapp
+    spec:
+      serviceAccountName: kube-rbac-proxy
+      containers:
+        - name: che-auth-testapp
+          image: quay.io/mvala/che-auth-testapp:latest
+          command: ["/opt/che-auth-testapp/che-auth-testapp"]
+          args:
+            - "--bind=127.0.0.1:8081"
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "100m"
+            limits:
+              memory: "32Mi"
+              cpu: "100m"
+        - name: kube-rbac-proxy
+          image: quay.io/brancz/kube-rbac-proxy:v0.8.0
+          command: ["kube-rbac-proxy"]
+          args:
+          - "--insecure-listen-address=0.0.0.0:8080"
+          - "--upstream=http://127.0.0.1:8081/"
+          - "--logtostderr=true"
+          - "--v=10"
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "50m"
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
+          ports:
+            - containerPort: 8080
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: che-auth-testapp
+spec:
+  selector:
+    app: che-auth-testapp
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: che-auth-testapp
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+spec:
+  rules:
+    - host: che-auth-testapp.192.168.39.104.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: che-auth-testapp
+                port:
+                  number: 8080
