@@ -2,18 +2,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: che-auth-testapp
+  name: kube-rbac-app
   labels:
-    app: che-auth-testapp
+    app: kube-rbac-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: che-auth-testapp
+      app: kube-rbac-app
   template:
     metadata:
       labels:
-        app: che-auth-testapp
+        app: kube-rbac-app
     spec:
       serviceAccountName: kube-rbac-proxy
       containers:
@@ -50,10 +50,10 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: che-auth-testapp
+  name: kube-rbac-app
 spec:
   selector:
-    app: che-auth-testapp
+    app: kube-rbac-app
   ports:
     - protocol: TCP
       port: 8080
@@ -62,20 +62,52 @@ spec:
 kind: Ingress
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: che-auth-testapp
+  name: kube-rbac-app
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
 spec:
   rules:
-    - host: che-auth-testapp.192.168.39.104.nip.io
+    - host: kube-rbac-app.{{MINIKUBE_IP}}.nip.io
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: che-auth-testapp
+                name: kube-rbac-app
                 port:
                   number: 8080
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-rbac-proxy
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kube-rbac-proxy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kube-rbac-proxy
+subjects:
+- kind: ServiceAccount
+  name: kube-rbac-proxy
+  namespace: che
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kube-rbac-proxy
+rules:
+- apiGroups: ["authentication.k8s.io"]
+  resources:
+  - tokenreviews
+  verbs: ["create"]
+- apiGroups: ["authorization.k8s.io"]
+  resources:
+  - subjectaccessreviews
+  verbs: ["create"]
