@@ -1,24 +1,23 @@
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: user-request-perm
-  namespace: che
-rules:
-- nonResourceURLs:
-  - "*"
-  verbs:
-  - "*"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
-  name: user-request-perm
-  namespace: che
+  name: che-user-request-perm
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: user-request-perm
+  kind: Role
+  name: che-user-request-perm
 subjects:
 - kind: User
   name: che@eclipse.org
   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: che-user-request-perm
+rules:
+- apiGroups: [""]
+  resources:
+  - service/kube-rbac-app
+  verbs: ["get"]
