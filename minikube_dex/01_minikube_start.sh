@@ -2,7 +2,7 @@
 
 set -x
 
-minikube --memory 6gb --disk-size 40g --driver='kvm2' start
+minikube --memory 6gb --disk-size 40g start
 
 minikube addons enable ingress
 

@@ -10,4 +10,4 @@ kubectl create secret -n dex \
     --from-literal=client-secret="${GITHUB_CLIENT_SECRET}"
 
 # deploy dex
-sed "s/{{MINIKUBE_IP}}/$( minikube ip )/g" dex.yaml | oc apply -n dex -f -
+sed "s/{{MINIKUBE_IP}}/$( minikube ip )/g" dex.yaml | kubectl apply -n dex -f -
