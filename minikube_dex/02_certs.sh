@@ -8,28 +8,41 @@ rm -rf ssl && mkdir -p ssl
 
 
 ## generate certs
-cat << EOF > ssl/req.cnf
-[req]
-req_extensions = v3_req
-distinguished_name = req_distinguished_name
+DOMAIN='dex.'$( minikube ip )'.nip.io'
+echo $DOMAIN
+DNS_ENTRIES=DNS:${DOMAIN},DNS:*.${DOMAIN},DNS:*.sharded.${DOMAIN}
+CHE_CA_CN='Local Dex Signer'
+CHE_CA_KEY_FILE='ssl/ca.key'
+CHE_CA_CERT_FILE='ssl/ca.pem'
+CHE_SERVER_ORG='Local Dex'
+CHE_SERVER_KEY_FILE='ssl/key.pem'
+CHE_SERVER_CERT_REQUEST_FILE='ssl/domain.csr'
+CHE_SERVER_CERT_FILE='ssl/cert.pem'
 
-[req_distinguished_name]
-
-[ v3_req ]
-basicConstraints = CA:FALSE
-keyUsage = nonRepudiation, digitalSignature, keyEncipherment
-subjectAltName = @alt_names
-
-[alt_names]
-DNS.1 = dex.${MINIKUBE_DOMAIN}
-EOF
-
-openssl genrsa -out ssl/ca-key.pem 2048
-openssl req -x509 -new -nodes -key ssl/ca-key.pem -days 10 -out ssl/ca.pem -subj "/CN=kube-ca"
-
-openssl genrsa -out ssl/key.pem 2048
-openssl req -new -key ssl/key.pem -out ssl/csr.pem -subj "/CN=kube-ca" -config ssl/req.cnf
-openssl x509 -req -in ssl/csr.pem -CA ssl/ca.pem -CAkey ssl/ca-key.pem -CAcreateserial -out ssl/cert.pem -days 10 -extensions v3_req -extfile ssl/req.cnf
+# Figure out openssl configuration file location
+OPENSSL_CNF='/etc/pki/tls/openssl.cnf'
+if [ ! -f $OPENSSL_CNF ]; then
+    OPENSSL_CNF='/etc/ssl/openssl.cnf'
+fi
+openssl genrsa -out $CHE_CA_KEY_FILE 4096
+openssl req -new -x509 -nodes -key $CHE_CA_KEY_FILE -sha256 \
+            -subj /CN="${CHE_CA_CN}" \
+            -days 1024 \
+            -reqexts SAN -extensions SAN \
+            -config <(cat ${OPENSSL_CNF} <(printf '[SAN]\nbasicConstraints=critical, CA:TRUE\nkeyUsage=keyCertSign, cRLSign, digitalSignature')) \
+            -outform PEM -out $CHE_CA_CERT_FILE
+openssl genrsa -out $CHE_SERVER_KEY_FILE 2048
+openssl req -new -sha256 -key $CHE_SERVER_KEY_FILE \
+            -subj "/O=${CHE_SERVER_ORG}/CN=${DOMAIN}" \
+            -reqexts SAN \
+            -config <(cat $OPENSSL_CNF <(printf "\n[SAN]\nsubjectAltName=${DNS_ENTRIES}\nbasicConstraints=critical, CA:FALSE\nkeyUsage=digitalSignature, keyEncipherment, keyAgreement, dataEncipherment\nextendedKeyUsage=serverAuth")) \
+            -outform PEM -out $CHE_SERVER_CERT_REQUEST_FILE
+openssl x509 -req -in $CHE_SERVER_CERT_REQUEST_FILE -CA $CHE_CA_CERT_FILE -CAkey $CHE_CA_KEY_FILE -CAcreateserial \
+             -days 365 \
+             -sha256 \
+             -extfile <(printf "subjectAltName=${DNS_ENTRIES}\nbasicConstraints=critical, CA:FALSE\nkeyUsage=digitalSignature, keyEncipherment, keyAgreement, dataEncipherment\nextendedKeyUsage=serverAuth") \
+             -outform PEM -out $CHE_SERVER_CERT_FILE
+cat $CHE_SERVER_CERT_FILE $CHE_CA_CERT_FILE > ssl/kube.crt
 
 
 ## copy certs so minikube can see it
