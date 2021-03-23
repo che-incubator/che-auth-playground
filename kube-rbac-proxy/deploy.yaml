@@ -67,9 +67,9 @@ data:
     authorization:
       resourceAttributes:
         apiVersion: v1
-        resource: service
-        subresource: kube-rbac-app
-        namespace: "che"
+        resource: services
+        subresource: proxy
+        namespace: "{{NAMESPACE}}"
 ---
 kind: Service
 apiVersion: v1
@@ -93,7 +93,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
 spec:
   rules:
-    - host: kube-rbac-app.{{MINIKUBE_IP}}.nip.io
+    - host: {{NAMESPACE}}-kube-rbac-app.{{MINIKUBE_IP}}.nip.io
       http:
         paths:
           - path: /
@@ -112,20 +112,20 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: kube-rbac-proxy
+  name: {{NAMESPACE}}-kube-rbac-proxy
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: kube-rbac-proxy
+  name: che-kube-rbac-proxy
 subjects:
 - kind: ServiceAccount
   name: kube-rbac-proxy
-  namespace: che
+  namespace: {{NAMESPACE}}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: kube-rbac-proxy
+  name: che-kube-rbac-proxy
 rules:
 - apiGroups: ["authentication.k8s.io"]
   resources:
