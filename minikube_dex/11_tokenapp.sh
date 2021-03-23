@@ -10,5 +10,11 @@ until [ $( kubectl get ingress -n che | grep oidc-example-app | grep -o $( minik
 
 echo
 echo "http://oidc-example-app.$( minikube ip ).nip.io"
-echo "email login credentials => che@eclipse.org:password"
+echo "email login credentials:"
+echo "   che@eclipse.org:password"
+echo "   user1@che:password"
+echo "   user2@che:password"
+echo "   user3@che:password"
+echo "   user4@che:password"
+echo "   user5@che:password"
 echo

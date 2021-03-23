@@ -33,7 +33,7 @@ Starts simple minikube instance
 Generates self-signed tls certificates for subdomains of minikube's ip `*.$( minikube ip ).nip.io`. Copies certificate authority into minikube folder, so _apiserver_ can later see it. __Don't forget to import `ssl/ca.pem` into your browser.__
 
 #### 03_dex.sh
-Deploys dex with specific configuration to this minikube instance. There is one static user set with credentials `che@eclipse.org:password`. Optionally set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET env variables prior running this script, to have github authentication working.
+Deploys dex with specific configuration to this minikube instance. There is six static users set with credentials `che@eclipse.org:password` and `user[1-5]@che:password`. Optionally set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET env variables prior running this script, to have github authentication working.
 
 #### 04_minikube_apiserver.sh
 Configures minikube apiserver with dex as oidc provider.
@@ -43,3 +43,6 @@ Deploys dex's example app https://github.com/dexidp/dex/tree/master/examples/exa
 
 #### 12_testapp.sh
 Deploys my authentication test app https://github.com/sparkoo/che-auth-testapp. This is useful to test if authentication and authorization with the token is actually working. This will add admin permissions to namespace `che` for user `che@eclipse.org`.
+
+#### 13_prepareNamespaces.sh
+Creates 5 namespaces `user[1-5]` with admin permissions for corresponding user.
