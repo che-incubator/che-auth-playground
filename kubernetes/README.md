@@ -13,6 +13,9 @@
     1. Run `./01_deploy.sh user1` (or other valid user `user[1-5]`).
     1. Deploy for at least one more user
 
+### Diagram
+![diagram](diagram.gif)
+
 ## How to test
 The user's applications are exposed on `https://che.<minikube ip>.nip.io/user[1-5]`. Only matching user should have access to the endpoints, other should see something like `Forbidden (user=user1@che, verb=get, resource=services, subresource=proxy)`.
 
