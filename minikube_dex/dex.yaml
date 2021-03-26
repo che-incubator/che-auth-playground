@@ -96,6 +96,7 @@ data:
     - id: example-app
       redirectURIs:
       - 'http://oidc-example-app.{{MINIKUBE_IP}}.nip.io/callback'
+      - 'https://che.{{MINIKUBE_IP}}.nip.io/oauth2/callback'
       name: 'Example App'
       secret: ZXhhbXBsZS1hcHAtc2VjcmV0
     enablePasswordDB: true

@@ -1,0 +1,49 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: route-config-{{NAMESPACE}}
+  labels:
+    app: che
+    role: gateway-config
+data:
+  {{NAMESPACE}}.yml: |
+    http:
+      routers:
+        {{NAMESPACE}}-app:
+          rule: "PathPrefix(`/{{NAMESPACE}}`)"
+          service: {{NAMESPACE}}-app-8081
+          middlewares: [{{NAMESPACE}}-app]
+          priority: 5
+        {{NAMESPACE}}-app-8081:
+          rule: "PathPrefix(`/{{NAMESPACE}}/8081`)"
+          service: {{NAMESPACE}}-app-8081
+          middlewares: [{{NAMESPACE}}-app-8081]
+          priority: 10
+        {{NAMESPACE}}-app-8082:
+          rule: "PathPrefix(`/{{NAMESPACE}}/8082`)"
+          service: {{NAMESPACE}}-app-8082
+          middlewares: [{{NAMESPACE}}-app-8082]
+          priority: 10
+      services:
+        {{NAMESPACE}}-app-8081:
+          loadBalancer:
+            servers:
+            - url: 'http://app.{{NAMESPACE}}.svc.cluster.local:8081'
+        {{NAMESPACE}}-app-8082:
+          loadBalancer:
+            servers:
+            - url: 'http://app.{{NAMESPACE}}.svc.cluster.local:8082'
+      middlewares:
+        {{NAMESPACE}}-app:
+          stripPrefix:
+            prefixes:
+            - '/{{NAMESPACE}}'
+        {{NAMESPACE}}-app-8081:
+          stripPrefix:
+            prefixes:
+            - '/{{NAMESPACE}}/8081'
+        {{NAMESPACE}}-app-8082:
+          stripPrefix:
+            prefixes:
+            - '/{{NAMESPACE}}/8082'

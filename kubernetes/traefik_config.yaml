@@ -1,0 +1,40 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: traefik-config
+data:
+  traefik.yml: |
+    global:
+      checkNewVersion: false
+      sendAnonymousUsage: false
+    entrypoints:
+      http:
+        address: "127.0.0.1:8080"
+    log:
+      level: "DEBUG"
+    providers:
+      file:
+        directory: "/dynamic-config"
+        watch: true
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: main-route-config
+  labels:
+    app: che
+    role: gateway-config
+data:
+  providers.yml: |
+    http:
+      routers:
+        che:
+          rule: "PathPrefix(`/`)"
+          service: che-service
+          priority: 1
+      services:
+        che-service:
+          loadBalancer:
+            servers:
+            - url: 'http://che-auth-testapp:8080'
