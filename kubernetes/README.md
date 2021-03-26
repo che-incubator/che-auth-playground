@@ -1,4 +1,4 @@
-#Setup minikube instance with authentication and authorization for multiple applications in different namespaces
+# Setup minikube instance with authentication and authorization for multiple applications in different namespaces
 
 ## How to run
   1. Start minikube instance with prepared scripts
@@ -14,7 +14,7 @@
     1. Deploy for at least one more user
 
 ### Diagram
-![diagram](diagram.gif)
+![diagram](diagram.png)
 
 ## How to test
 The user's applications are exposed on `https://che.<minikube ip>.nip.io/user[1-5]`. Only matching user should have access to the endpoints, other should see something like `Forbidden (user=user1@che, verb=get, resource=services, subresource=proxy)`.
