@@ -8,9 +8,9 @@ rm -rf ssl && mkdir -p ssl
 
 
 ## generate certs
-DOMAIN='dex.'$( minikube ip )'.nip.io'
+DOMAIN="dex.${MINIKUBE_DOMAIN}"
 echo $DOMAIN
-DNS_ENTRIES=DNS:${DOMAIN},DNS:*.${DOMAIN},DNS:*.sharded.${DOMAIN}
+DNS_ENTRIES=DNS:${DOMAIN},DNS:*.${DOMAIN},DNS:*.sharded.${DOMAIN},DNS:che.${MINIKUBE_DOMAIN}
 CHE_CA_CN='Local Dex Signer'
 CHE_CA_KEY_FILE='ssl/ca.key'
 CHE_CA_CERT_FILE='ssl/ca.pem'
@@ -33,7 +33,7 @@ openssl req -new -x509 -nodes -key $CHE_CA_KEY_FILE -sha256 \
             -outform PEM -out $CHE_CA_CERT_FILE
 openssl genrsa -out $CHE_SERVER_KEY_FILE 2048
 openssl req -new -sha256 -key $CHE_SERVER_KEY_FILE \
-            -subj "/O=${CHE_SERVER_ORG}/CN=${DOMAIN}" \
+            -subj "/O=${CHE_SERVER_ORG}/CN=${MINIKUBE_DOMAIN}" \
             -reqexts SAN \
             -config <(cat $OPENSSL_CNF <(printf "\n[SAN]\nsubjectAltName=${DNS_ENTRIES}\nbasicConstraints=critical, CA:FALSE\nkeyUsage=digitalSignature, keyEncipherment, keyAgreement, dataEncipherment\nextendedKeyUsage=serverAuth")) \
             -outform PEM -out $CHE_SERVER_CERT_REQUEST_FILE
@@ -48,6 +48,8 @@ cat $CHE_SERVER_CERT_FILE $CHE_CA_CERT_FILE > ssl/kube.crt
 ## copy certs so minikube can see it
 mkdir -p ~/.minikube/files/etc/ca-certificates/
 cp ssl/ca.pem ~/.minikube/files/etc/ca-certificates/openid-ca.pem
+
+kubectl create secret -n che generic root-ca --from-file=ca.pem=ssl/ca.pem
 
 set +x
 

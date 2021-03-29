@@ -8,10 +8,30 @@ if [ -z ${NAMESPACE} ]; then
   exit 1
 fi
 
-# deploy app with kube-rbac-proxy
-sed "s/{{MINIKUBE_IP}}/$( minikube ip )/g; s/{{NAMESPACE}}/${NAMESPACE}/g" deploy.yaml | kubectl apply -n ${NAMESPACE} -f -
+echo "Preparing namespace '${NAMESPACE}' for user '${USER}'"
 
-until [ $( kubectl get ingress -n ${NAMESPACE} | grep kube-rbac-app | grep -o $( minikube ip ) | wc -l) -eq 2 ]; do echo "Waiting for ingress ..."; sleep 3; done
+kubectl create namespace ${NAMESPACE}
+
+echo "
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ${NAMESPACE}-admin
+subjects:
+  - kind: User
+    name: ${USER}
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: admin
+  apiGroup: rbac.authorization.k8s.io
+" | kubectl apply -n ${NAMESPACE} -f -
+
+# deploy app with kube-rbac-proxy
+sed "s/{{NAMESPACE}}/${NAMESPACE}/g" deploy.yaml | kubectl apply -n ${NAMESPACE} -f -
+sed "s/{{NAMESPACE}}/${NAMESPACE}/g" route-config.yaml | kubectl apply -n che -f -
+
+# until [ $( kubectl get ingress -n ${NAMESPACE} | grep "${NAMESPACE}-app" | grep -o $( minikube ip ) | wc -l) -eq 2 ]; do echo "Waiting for ingress ..."; sleep 3; done
 echo
-echo "http://${NAMESPACE}-kube-rbac-app.$( minikube ip ).nip.io"
+echo "https://che.$( minikube ip ).nip.io/${NAMESPACE}"
 echo

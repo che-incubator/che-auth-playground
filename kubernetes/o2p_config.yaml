@@ -1,0 +1,26 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: oauth2-proxy
+data:
+  oauth2-proxy.cfg: |
+    http_address = ":4180"
+    reverse_proxy = true
+    redirect_url = "https://che.{{MINIKUBE_IP}}.nip.io/oauth2/callback"
+    upstreams = [
+        "http://127.0.0.1:8080/"
+    ]
+    client_id = "example-app"
+    client_secret = "ZXhhbXBsZS1hcHAtc2VjcmV0"
+    provider = "oidc"
+    provider_display_name = "Dex"
+    oidc_issuer_url = "https://dex.{{MINIKUBE_IP}}.nip.io:32000"
+    cookie_secret = "wgg2UoihVgdmnnJzekA0qQ=="
+    email_domains = "*"
+    standard_logging = true
+    request_logging = true
+    auth_logging = true
+    cookie_secure = true
+    cookie_httponly = false
+    pass_authorization_header = true

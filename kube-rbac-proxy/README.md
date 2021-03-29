@@ -1,9 +1,11 @@
 # Setup demo application with kube-rbac-proxy as a sidecar
 
 ## How to run it
-__minikube_dex__ setup has defined 5 static users user[1-5]@che and script `minikube_dex/13_prepareNamespaces.sh` has created 5 namespaces `user[1-5]` with users `user[1-5]@che` having admin ClusterRole in their matching namespace.
+__minikube_dex__ setup has defined 5 static users `user[1-5]@che`.
 
-`./01_deploy.sh <namespace> <user>` will deploy demo application to given namespace (`<user>` parameter is optional. The script derives the user from namespace like `<namespace>@che`). Users having `services/proxy` permissions in the namespace will be able to access the application.
+`./01_deploy.sh <user>` will create a `<user>` namespace with admin permissions for the user and deploy there demo application protected by kube-rbac-proxy. Users having `services/proxy` permissions in the namespace will be able to access the application. It also created a traefik routing configuration in `che` namespace.
+
+There are actually 2 instances of the demo application in the pod, both protected with their own instance of kube-rbac-proxy.
 
 ### Test
 You need to obtain a token for the user (see `minikube_dex/README.md`). Then run `./03_test.sh <namespace> <token>`.
