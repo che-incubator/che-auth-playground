@@ -24,7 +24,7 @@
 
 Gateway covers couple of responsibilities here:
   - Authentication
-    - oauth2_proxy ensures all incoming requests are authenticated, or redirect user to authentication page.
+    - oauth2_proxy ensures all incoming requests are authenticated. If user has no auth cookie, it redirects user to authentication page.
   - Authorization
     - Traefik uses forwardAuth middleware (https://doc.traefik.io/traefik/middlewares/forwardauth/) with target of kube-rbac-proxy to allow/deny the request. Kube-rbac-proxy uses non-resource RBAC cluster rules (see [/kube-rbac-proxy/route-config.yaml](../kube-rbac-proxy/route-config.yaml#54)). "Dummy webserver" is there only as a blackhole upstream for kube-rbac-proxy.
   - Routing
