@@ -17,7 +17,7 @@ spec:
     spec:
       serviceAccountName: che-gateway
       containers:
-      - name: traefik
+      - name: traefik-8080
         image: traefik:2.4.8
         volumeMounts:
         - name: traefik-config
@@ -40,7 +40,7 @@ spec:
         - name: traefik-dynamic-config
           mountPath: "/dynamic-config"
 
-      - name: oauth2-proxy
+      - name: oauth2-proxy-4180
         image: quay.io/oauth2-proxy/oauth2-proxy:v7.0.1
         command: ['oauth2-proxy']
         args:
@@ -54,6 +54,25 @@ spec:
         ports:
         - containerPort: 4180
 
+      - name: kube-rbac-proxy-8089
+        image: quay.io/brancz/kube-rbac-proxy:v0.8.0
+        command: ["kube-rbac-proxy"]
+        args:
+        - "--insecure-listen-address=127.0.0.1:8089"
+        - "--upstream=http://127.0.0.1:8090/bench"
+        - "--logtostderr=true"
+        - "--v=10"
+        ports:
+          - containerPort: 8089
+        volumeMounts:
+        - name: kube-rbac-proxy-config
+          mountPath: /etc/kube-rbac-proxy
+
+      - name: dummy-http-8090
+        image: containous/whoami:v1.5.0
+        command: ["/whoami"]
+        args: ["--port", "8090"]
+
       volumes:
       - name: oauth2-proxy-config
         configMap:
@@ -66,6 +85,9 @@ spec:
           name: traefik-config
       - name: traefik-dynamic-config
         emptyDir: {}
+      - name: kube-rbac-proxy-config
+        configMap:
+          name: kube-rbac-proxy-config
 ---
 kind: Service
 apiVersion: v1

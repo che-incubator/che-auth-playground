@@ -13,17 +13,17 @@ data:
         {{NAMESPACE}}-app:
           rule: "PathPrefix(`/{{NAMESPACE}}`)"
           service: {{NAMESPACE}}-app-8081
-          middlewares: [{{NAMESPACE}}-app]
+          middlewares: [{{NAMESPACE}}-app,{{NAMESPACE}}-app-auth]
           priority: 5
         {{NAMESPACE}}-app-8081:
           rule: "PathPrefix(`/{{NAMESPACE}}/8081`)"
           service: {{NAMESPACE}}-app-8081
-          middlewares: [{{NAMESPACE}}-app-8081]
+          middlewares: [{{NAMESPACE}}-app-8081,{{NAMESPACE}}-app-auth]
           priority: 10
         {{NAMESPACE}}-app-8082:
           rule: "PathPrefix(`/{{NAMESPACE}}/8082`)"
           service: {{NAMESPACE}}-app-8082
-          middlewares: [{{NAMESPACE}}-app-8082]
+          middlewares: [{{NAMESPACE}}-app-8082,{{NAMESPACE}}-app-auth]
           priority: 10
       services:
         {{NAMESPACE}}-app-8081:
@@ -47,3 +47,26 @@ data:
           stripPrefix:
             prefixes:
             - '/{{NAMESPACE}}/8082'
+        {{NAMESPACE}}-app-auth:
+          forwardAuth:
+            address: 'http://127.0.0.1:8089/{{NAMESPACE}}'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: che-{{NAMESPACE}}
+rules:
+- nonResourceURLs: ["/{{NAMESPACE}}"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: che-{{NAMESPACE}}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: che-{{NAMESPACE}}
+subjects:
+- kind: User
+  name: {{NAMESPACE}}@che
