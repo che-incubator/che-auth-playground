@@ -13,8 +13,23 @@
     1. Run `./01_deploy.sh user1` (or other valid user `user[1-5]`).
     1. Deploy for at least one more user
 
+## How it works
+
 ### Diagram
-![diagram](diagram.png)
+(gateway is blackbox here. See next image.)
+![Diagram](diagram.png)
+
+### Gateway
+![Gateway](gateway.png)
+
+Gateway covers couple of responsibilities here:
+  - Authentication
+    - oauth2_proxy ensures all incoming requests are authenticated. If user has no auth cookie, it redirects user to authentication page.
+  - Authorization
+    - Traefik uses forwardAuth middleware (https://doc.traefik.io/traefik/middlewares/forwardauth/) with target of kube-rbac-proxy to allow/deny the request. Kube-rbac-proxy uses non-resource RBAC cluster rules (see [/kube-rbac-proxy/route-config.yaml](../kube-rbac-proxy/route-config.yaml#L54)). "Dummy webserver" is there only as a blackhole upstream for kube-rbac-proxy.
+  - Routing
+    - Classic routing with treafik as we know it from single-host Che, except for Authorization middleware described above ^^
+
 
 ## How to test
 The user's applications are exposed on `https://che.<minikube ip>.nip.io/user[1-5]`. Only matching user should have access to the endpoints, other should see something like `Forbidden (user=user1@che, verb=get, resource=services, subresource=proxy)`.
