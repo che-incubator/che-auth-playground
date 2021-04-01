@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: che-auth-testapp
+  labels:
+    app: che-auth-testapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: che-auth-testapp
+  template:
+    metadata:
+      labels:
+        app: che-auth-testapp
+    spec:
+      containers:
+        - name: che-auth-testapp
+          image: quay.io/mvala/che-auth-testapp:latest
+          env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          ports:
+            - containerPort: 8080
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: che-auth-testapp
+spec:
+  selector:
+    app: che-auth-testapp
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

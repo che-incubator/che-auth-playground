@@ -41,29 +41,26 @@ spec:
           mountPath: "/dynamic-config"
 
       - name: oauth2-proxy-4180
-        image: quay.io/oauth2-proxy/oauth2-proxy:v7.0.1
-        command: ['oauth2-proxy']
+        image: quay.io/openshift/origin-oauth-proxy:4.7
+        # command: ['oauth2-proxy']
         args:
         - "--config=/etc/oauth2-proxy/oauth2-proxy.cfg"
-        - "--provider-ca-file=/etc/tls/root-ca/ca.pem"
         volumeMounts:
         - name: oauth2-proxy-config
           mountPath: /etc/oauth2-proxy
-        - name: tls
-          mountPath: /etc/tls/root-ca
         ports:
         - containerPort: 4180
 
-      - name: kube-rbac-proxy-8089
-        image: quay.io/brancz/kube-rbac-proxy:v0.8.0
-        command: ["kube-rbac-proxy"]
-        args:
-        - "--insecure-listen-address=127.0.0.1:8089"
-        - "--upstream=http://127.0.0.1:8090/bench"
-        - "--logtostderr=true"
-        - "--v=10"
-        ports:
-          - containerPort: 8089
+      # - name: kube-rbac-proxy-8089
+      #   image: quay.io/brancz/kube-rbac-proxy:v0.8.0
+      #   # command: ["kube-rbac-proxy"]
+      #   args:
+      #   - "--insecure-listen-address=127.0.0.1:8089"
+      #   - "--upstream=http://127.0.0.1:8090/bench"
+      #   - "--logtostderr=true"
+      #   - "--v=10"
+      #   ports:
+      #     - containerPort: 8089
 
       - name: dummy-http-8090
         image: containous/whoami:v1.5.0
@@ -74,9 +71,6 @@ spec:
       - name: oauth2-proxy-config
         configMap:
           name: oauth2-proxy
-      - name: tls
-        secret:
-          secretName: root-ca
       - name: traefik-config
         configMap:
           name: traefik-config
@@ -95,28 +89,16 @@ spec:
     port: 4180
     targetPort: 4180
 ---
-kind: Ingress
-apiVersion: networking.k8s.io/v1
+apiVersion: route.openshift.io/v1
+kind: Route
 metadata:
   name: che-gateway
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
+  host: che.{{HOSTNAME}}
+  port:
+    targetPort: 4180
+  to:
+    kind: Service
+    name: che-gateway
   tls:
-  - hosts:
-      - che.{{MINIKUBE_IP}}.nip.io
-    secretName: che-tls
-  rules:
-  - host: che.{{MINIKUBE_IP}}.nip.io
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: che-gateway
-            port: 
-              number: 4180
+    termination: edge

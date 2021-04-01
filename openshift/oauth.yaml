@@ -1,0 +1,8 @@
+kind: OAuthClient
+apiVersion: oauth.openshift.io/v1
+metadata:
+ name: che-oauth 
+secret: "ZXhhbXBsZS1hcHAtc2VjcmV0" 
+redirectURIs:
+ - "https://che.{{HOSTNAME}}/oauth2/callback" 
+grantMethod: prompt
