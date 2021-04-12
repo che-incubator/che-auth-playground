@@ -8,9 +8,9 @@ data:
     http_address = ":4180"
     https_address = ""
     provider = "openshift"
-    redirect_url = "https://che.{{HOSTNAME}}/oauth2/callback"
+    redirect_url = "https://che.{{HOSTNAME}}/oauth/callback"
     upstreams = [
-        "http://127.0.0.1:8080/"
+        "http://127.0.0.1:8081/"
     ]
     client_id = "che-oauth"
     client_secret = "ZXhhbXBsZS1hcHAtc2VjcmV0"
@@ -23,4 +23,4 @@ data:
     auth_logging = true
     cookie_secure = true
     cookie_httponly = false
-    pass_authorization_header = true
+    pass_access_token = true

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 NAMESPACE=che
-HOSTNAME=apps.cluster-5eb2.5eb2.sandbox810.opentlc.com
+HOSTNAME=apps.cluster-253a.253a.sandbox483.opentlc.com
 
 kubectl create namespace ${NAMESPACE}
 
