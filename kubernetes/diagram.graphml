@@ -219,7 +219,7 @@
                       <y:Geometry height="154.9609375" width="404.6708984375" x="517.53515625" y="460.0"/>
                       <y:Fill color="#F2F0D8" transparent="false"/>
                       <y:BorderStyle color="#000000" type="line" width="1.0"/>
-                      <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#B7B69E" borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="plain" hasLineColor="false" height="21.4609375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="404.6708984375" x="0.0" xml:space="preserve" y="0.0">app (pod)</y:NodeLabel>
+                      <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#B7B69E" borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="plain" hasLineColor="false" height="21.4609375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="404.6708984375" x="0.0" xml:space="preserve" y="0.0">workspace (pod)</y:NodeLabel>
                       <y:Shape type="rectangle"/>
                       <y:DropShadow color="#D2D2D2" offsetX="4" offsetY="4"/>
                       <y:State closed="false" closedHeight="50.0" closedWidth="50.0" innerGraphDisplayEnabled="false"/>
@@ -412,7 +412,7 @@
                       <y:Geometry height="161.0" width="404.95703125" x="42.04296875" y="460.0"/>
                       <y:Fill color="#F2F0D8" transparent="false"/>
                       <y:BorderStyle color="#000000" type="line" width="1.0"/>
-                      <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#B7B69E" borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="plain" hasLineColor="false" height="21.4609375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="404.95703125" x="0.0" xml:space="preserve" y="0.0">app (pod)</y:NodeLabel>
+                      <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#B7B69E" borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="plain" hasLineColor="false" height="21.4609375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="404.95703125" x="0.0" xml:space="preserve" y="0.0">workspace (pod)</y:NodeLabel>
                       <y:Shape type="rectangle"/>
                       <y:DropShadow color="#D2D2D2" offsetX="4" offsetY="4"/>
                       <y:State closed="false" closedHeight="50.0" closedWidth="50.0" innerGraphDisplayEnabled="false"/>
@@ -705,7 +705,6 @@
       </data>
     </edge>
     <edge id="n0::n0::e1" source="n0::n0::n0" target="n0::n0::n2::n0">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="-2.388413302714417" sy="11.667125867781657" tx="0.0" ty="0.0">
