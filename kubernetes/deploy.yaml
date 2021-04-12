@@ -64,6 +64,9 @@ spec:
         - "--v=10"
         ports:
           - containerPort: 8089
+        volumeMounts:
+        - name: kube-rbac-proxy-config
+          mountPath: /etc/kube-rbac-proxy
 
       - name: dummy-http-8090
         image: containous/whoami:v1.5.0
@@ -82,6 +85,9 @@ spec:
           name: traefik-config
       - name: traefik-dynamic-config
         emptyDir: {}
+      - name: kube-rbac-proxy-config
+        configMap:
+          name: kube-rbac-proxy-config
 ---
 kind: Service
 apiVersion: v1
