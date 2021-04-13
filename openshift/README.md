@@ -31,3 +31,6 @@ Gateway covers couple of responsibilities here:
 The user's applications are exposed on `https://che.<cluster-host>/user[1-n]`. Only matching user should have access to the endpoints, other should see something like `Forbidden (user=user3, verb=get, resource=, subresource=)`.
 
 The demo application is doing some requests to k8s with bearer token. Logged user should have access only to his/her namespace. If you try to request different namespace, you shold see in the output something like `configmaps is forbidden: User "user1" cannot list resource "configmaps" in API group "" in the namespace "user2"`.
+
+## Notes
+I wasn't able to run upstream kube-rbac-proxy (https://github.com/brancz/kube-rbac-proxy) on Openshift. I was getting error events like `chdir to cwd (\"/home/nonroot\") set in config.json failed: permission denied` and kube-rbac-proxy containers in pod won't start. That should be fixable by explicitly setting the userid for the kube-rbac-proxy container (like here https://github.com/prometheus-operator/kube-prometheus/pull/803/files), but then Openshift complains with `Invalid value: 65532: "must be in the ranges: [1000630000, 1000639999]]"` and pod won't even get scheduled to start. At the end I've used __openshift/kube-rbac-proxy__ fork, which fixes this issue (https://github.com/openshift/kube-rbac-proxy).
