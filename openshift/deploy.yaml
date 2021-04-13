@@ -59,8 +59,7 @@ spec:
         - "--bind=127.0.0.1:8081"
 
       - name: kube-rbac-proxy-8089
-        image: quay.io/brancz/kube-rbac-proxy:v0.8.0
-        # command: ["kube-rbac-proxy"]
+        image: quay.io/openshift/origin-kube-rbac-proxy:4.7
         args:
         - "--insecure-listen-address=127.0.0.1:8089"
         - "--upstream=http://127.0.0.1:8090/bench"

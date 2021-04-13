@@ -22,7 +22,7 @@ spec:
           imagePullPolicy: Always
           command: ["/opt/che-auth-testapp/che-auth-testapp"]
           args:
-            - "--bind=0.0.0.0:8081"
+            - "--bind=127.0.0.1:8881"
           env:
           - name: POD_NAME
             valueFrom:
@@ -32,37 +32,27 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
-        # - name: kube-rbac-proxy-8081
-        #   image: quay.io/brancz/kube-rbac-proxy:v0.8.0
-        #   # command: ["/usr/local/bin/kube-rbac-proxy"]
-        #   args:
-        #   - "--insecure-listen-address=0.0.0.0:8081"
-        #   - "--upstream=http://127.0.0.1:8881/"
-        #   - "--logtostderr=true"
-        #   - "--v=10"
-        #   ports:
-        #     - containerPort: 8081
-        #   # volumeMounts:
-        #   # - name: config
-        #   #   mountPath: /usr/local/etc/kube-rbac-proxy
-
-        # - name: kube-rbac-proxy-8081
-        # image: quay.io/brancz/kube-rbac-proxy:v0.8.0
-        # command: ["kube-rbac-proxy"]
-        # args:
-        # - "--insecure-listen-address=127.0.0.1:8089"
-        # - "--upstream=http://127.0.0.1:8090/bench"
-        # - "--logtostderr=true"
-        # - "--v=10"
-        # ports:
-          # - containerPort: 8081
+        - name: kube-rbac-proxy-8081
+          image: quay.io/openshift/origin-kube-rbac-proxy:4.7
+          args:
+          - "--insecure-listen-address=0.0.0.0:8081"
+          - "--upstream=http://127.0.0.1:8881/"
+          - "--config-file=/usr/local/etc/kube-rbac-proxy/config-file.yaml"
+          - "--auth-header-fields-enabled"
+          - "--logtostderr=true"
+          - "--v=10"
+          ports:
+            - containerPort: 8081
+          volumeMounts:
+          - name: config
+            mountPath: /usr/local/etc/kube-rbac-proxy
 
         - name: che-auth-testapp-8082
           image: quay.io/mvala/che-auth-testapp:latest
           imagePullPolicy: Always
           command: ["/opt/che-auth-testapp/che-auth-testapp"]
           args:
-            - "--bind=0.0.0.0:8082"
+            - "--bind=127.0.0.1:8882"
           env:
           - name: POD_NAME
             valueFrom:
@@ -72,25 +62,24 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
-        # - name: kube-rbac-proxy-8082
-        #   image: quay.io/brancz/kube-rbac-proxy:v0.8.0
-        #   # command: ["kube-rbac-proxy"]
-        #   args:
-        #   - "--insecure-listen-address=0.0.0.0:8082"
-        #   - "--upstream=http://127.0.0.1:8882/"
-        #   # - "--config-file=/tmp/kube-rbac-proxy/config-file.yaml"
-        #   - "--auth-header-fields-enabled"
-        #   - "--logtostderr=true"
-        #   - "--v=10"
-        #   ports:
-        #     - containerPort: 8082
-          # volumeMounts:
-          # - name: config
-          #   mountPath: /tmp/kube-rbac-proxy/
-      # volumes:
-      # - name: config
-      #   configMap:
-      #     name: kube-rbac-proxy
+        - name: kube-rbac-proxy-8082
+          image: quay.io/openshift/origin-kube-rbac-proxy:4.7
+          args:
+          - "--insecure-listen-address=0.0.0.0:8082"
+          - "--upstream=http://127.0.0.1:8882/"
+          - "--config-file=/usr/local/etc/kube-rbac-proxy/config-file.yaml"
+          - "--auth-header-fields-enabled"
+          - "--logtostderr=true"
+          - "--v=10"
+          ports:
+            - containerPort: 8082
+          volumeMounts:
+          - name: config
+            mountPath: /usr/local/etc/kube-rbac-proxy/
+      volumes:
+      - name: config
+        configMap:
+          name: kube-rbac-proxy
 ---
 apiVersion: v1
 kind: ConfigMap
