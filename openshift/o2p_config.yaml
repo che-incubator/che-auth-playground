@@ -1,0 +1,26 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: oauth2-proxy
+data:
+  oauth2-proxy.cfg: |
+    http_address = ":4180"
+    https_address = ""
+    provider = "openshift"
+    redirect_url = "https://che.{{HOSTNAME}}/oauth/callback"
+    upstreams = [
+        "http://127.0.0.1:8081/"
+    ]
+    client_id = "che-oauth"
+    client_secret = "ZXhhbXBsZS1hcHAtc2VjcmV0"
+    scope = "user:full"
+    openshift_service_account = "che-gateway"
+    cookie_secret = "wgg2UoihVgdmnnJzekA0qQ=="
+    email_domains = "*"
+    standard_logging = true
+    request_logging = true
+    auth_logging = true
+    cookie_secure = true
+    cookie_httponly = false
+    pass_access_token = true

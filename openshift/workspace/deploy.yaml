@@ -1,0 +1,144 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  labels:
+    app: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      serviceAccountName: kube-rbac-proxy
+      containers:
+        - name: che-auth-testapp-8081
+          image: quay.io/mvala/che-auth-testapp:latest
+          imagePullPolicy: Always
+          command: ["/opt/che-auth-testapp/che-auth-testapp"]
+          args:
+            - "--bind=127.0.0.1:8881"
+          env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        - name: kube-rbac-proxy-8081
+          image: quay.io/openshift/origin-kube-rbac-proxy:4.7
+          args:
+          - "--insecure-listen-address=0.0.0.0:8081"
+          - "--upstream=http://127.0.0.1:8881/"
+          - "--config-file=/usr/local/etc/kube-rbac-proxy/config-file.yaml"
+          - "--auth-header-fields-enabled"
+          - "--logtostderr=true"
+          - "--v=10"
+          ports:
+            - containerPort: 8081
+          volumeMounts:
+          - name: config
+            mountPath: /usr/local/etc/kube-rbac-proxy
+
+        - name: che-auth-testapp-8082
+          image: quay.io/mvala/che-auth-testapp:latest
+          imagePullPolicy: Always
+          command: ["/opt/che-auth-testapp/che-auth-testapp"]
+          args:
+            - "--bind=127.0.0.1:8882"
+          env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        - name: kube-rbac-proxy-8082
+          image: quay.io/openshift/origin-kube-rbac-proxy:4.7
+          args:
+          - "--insecure-listen-address=0.0.0.0:8082"
+          - "--upstream=http://127.0.0.1:8882/"
+          - "--config-file=/usr/local/etc/kube-rbac-proxy/config-file.yaml"
+          - "--auth-header-fields-enabled"
+          - "--logtostderr=true"
+          - "--v=10"
+          ports:
+            - containerPort: 8082
+          volumeMounts:
+          - name: config
+            mountPath: /usr/local/etc/kube-rbac-proxy/
+      volumes:
+      - name: config
+        configMap:
+          name: kube-rbac-proxy
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-rbac-proxy
+data:
+  config-file.yaml: |+
+    authorization:
+      resourceAttributes:
+        apiVersion: v1
+        resource: services
+        subresource: proxy
+        namespace: "{{NAMESPACE}}"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: app
+spec:
+  selector:
+    app: app
+  ports:
+    - name: app-8081
+      protocol: TCP
+      port: 8081
+      targetPort: 8081
+    - name: app-8082
+      protocol: TCP
+      port: 8082
+      targetPort: 8082
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-rbac-proxy
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{NAMESPACE}}-kube-rbac-proxy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: che-kube-rbac-proxy
+subjects:
+- kind: ServiceAccount
+  name: kube-rbac-proxy
+  namespace: {{NAMESPACE}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: che-kube-rbac-proxy
+rules:
+- apiGroups: ["authentication.k8s.io"]
+  resources:
+  - tokenreviews
+  verbs: ["create"]
+- apiGroups: ["authorization.k8s.io"]
+  resources:
+  - subjectaccessreviews
+  verbs: ["create"]
