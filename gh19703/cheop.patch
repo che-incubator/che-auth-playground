@@ -1,0 +1,15 @@
+apiVersion: org.eclipse.che/v1
+kind: CheCluster
+metadata:
+  name: eclipse-che
+spec:
+  auth:
+    externalIdentityProvider: true
+  server:
+    cheImage: 'quay.io/mvala/che-server'
+    cheImageTag: 'gh19703-auth'
+    cheImagePullPolicy: Always
+    cheDebug: 'true'
+    customCheProperties:
+      CHE_AUTH_NATIVEUSER: 'true'
+
