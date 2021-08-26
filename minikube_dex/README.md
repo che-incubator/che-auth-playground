@@ -22,7 +22,7 @@ $ ./12_testapp.sh
 
 ![demo](demo.gif)
 
-## What it do
+## What it does
 
 See the scripts for more details.
 
