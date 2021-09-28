@@ -5,7 +5,6 @@ set -x
 MINIKUBE_DOMAIN=$( minikube ip ).nip.io
 
 minikube \
-  --kubernetes-version=1.20.0 \
   --extra-config="apiserver.oidc-issuer-url=https://dex.${MINIKUBE_DOMAIN}:32000" \
   --extra-config="apiserver.oidc-client-id=example-app" \
   --extra-config="apiserver.oidc-ca-file=/etc/ca-certificates/openid-ca.pem" \
