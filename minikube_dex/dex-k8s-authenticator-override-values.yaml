@@ -1,0 +1,25 @@
+config:
+  trusted_root_ca: |
+${TRUSTED_ROOT_CA}
+  clusters:
+    - name: demo
+      issuer: https://dex.${MINIKUBE_IP}.nip.io:32000
+      client_id: example-app
+      client_secret: ZXhhbXBsZS1hcHAtc2VjcmV0
+      redirect_uri: http://dex-k8s-authenticator.${MINIKUBE_IP}.nip.io/callback
+      k8s_master_uri: https://${MINIKUBE_IP}:8443
+      k8s_ca_pem: |
+${K8S_CA_PEM}
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+
+  hosts:
+    - host: dex-k8s-authenticator.${MINIKUBE_IP}.nip.io
+      paths:
+        - path: /
+          pathType: Prefix

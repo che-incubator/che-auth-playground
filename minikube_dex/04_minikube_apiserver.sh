@@ -4,6 +4,8 @@ set -x
 
 MINIKUBE_DOMAIN=$( minikube ip ).nip.io
 
+
+
 minikube \
   --extra-config="apiserver.oidc-issuer-url=https://dex.${MINIKUBE_DOMAIN}:32000" \
   --extra-config="apiserver.oidc-client-id=example-app" \

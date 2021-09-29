@@ -95,6 +95,7 @@ data:
     staticClients:
     - id: example-app
       redirectURIs:
+      - 'http://dex-k8s-authenticator.{{MINIKUBE_IP}}.nip.io/callback'
       - 'http://oidc-example-app.{{MINIKUBE_IP}}.nip.io/callback'
       - 'https://che.{{MINIKUBE_IP}}.nip.io/oauth2/callback'
       name: 'Example App'
