@@ -6,7 +6,6 @@ MINIKUBE_DOMAIN=$( minikube ip ).nip.io
 
 rm -rf ssl && mkdir -p ssl
 
-
 ## generate certs
 DOMAIN="dex.${MINIKUBE_DOMAIN}"
 echo $DOMAIN
@@ -43,7 +42,6 @@ openssl x509 -req -in $CHE_SERVER_CERT_REQUEST_FILE -CA $CHE_CA_CERT_FILE -CAkey
              -extfile <(printf "subjectAltName=${DNS_ENTRIES}\nbasicConstraints=critical, CA:FALSE\nkeyUsage=digitalSignature, keyEncipherment, keyAgreement, dataEncipherment\nextendedKeyUsage=serverAuth") \
              -outform PEM -out $CHE_SERVER_CERT_FILE
 cat $CHE_SERVER_CERT_FILE $CHE_CA_CERT_FILE > ssl/kube.crt
-
 
 ## copy certs so minikube can see it
 mkdir -p ~/.minikube/files/etc/ca-certificates/

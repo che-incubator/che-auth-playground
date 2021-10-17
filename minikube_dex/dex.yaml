@@ -23,7 +23,7 @@ spec:
     spec:
       serviceAccountName: dex # This is created below
       containers:
-      - image: dexidp/dex:v2.27.0 #or quay.io/dexidp/dex:v2.26.0
+      - image: dexidp/dex:v2.30.0 #or quay.io/dexidp/dex:v2.26.0
         name: dex
         command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
 
@@ -48,6 +48,16 @@ spec:
             secretKeyRef:
               name: github-client
               key: client-secret
+        - name: LDAP_ADMIN_USER_DN
+          valueFrom:
+            secretKeyRef:
+              name: ldap-admin-account
+              key: ldap-admin-user-dn
+        - name: LDAP_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ldap-admin-account
+              key: ldap-admin-password
 
         # readinessProbe:
         #   httpGet:
@@ -89,6 +99,29 @@ data:
         clientID: $GITHUB_CLIENT_ID
         clientSecret: $GITHUB_CLIENT_SECRET
         redirectURI: https://dex.{{MINIKUBE_IP}}.nip.io:32000/callback
+    - type: ldap
+      id: ldap
+      name: LDAP
+      config:
+        redirectURI: https://dex.{{MINIKUBE_IP}}.nip.io:32000/callback
+        host: openldap.{{MINIKUBE_IP}}.nip.io:32500
+        insecureNoSSL: true
+        insecureSkipVerify: true
+        bindDN: $LDAP_ADMIN_USER_DN
+        bindPW: $LDAP_ADMIN_PASSWORD
+        userSearch:
+          baseDN: ou=users,dc=example,dc=org
+          filter: "(objectClass=posixAccount)"
+          username: uid
+          idAttr: uid
+          emailAttr: mail
+          nameAttr: uid
+        groupSearch:
+          baseDN: ou=users,dc=example,dc=org
+          filter: "(objectClass=groupOfNames)"
+          userAttr: DN
+          groupAttr: member
+          nameAttr: cn
     oauth2:
       skipApprovalScreen: true
 
